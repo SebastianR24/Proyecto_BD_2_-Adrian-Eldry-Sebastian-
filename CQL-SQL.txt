@@ -1,0 +1,33 @@
+1. Cassandra (CQL)
+
+docker exec -it cassandra_node cqlsh
+
+CREATE KEYSPACE IF NOT EXISTS bigdata 
+WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+USE bigdata;
+
+CREATE TABLE IF NOT EXISTS ventas_crudas (
+    id_venta UUID,
+    fecha_venta DATE,
+    id_producto INT,
+    categoria TEXT,
+    monto_total FLOAT,
+    id_cliente INT,
+    PRIMARY KEY ((fecha_venta), id_venta)
+);
+
+
+2. ClickHouse (SQL)
+
+docker exec -it clickhouse_server clickhouse-client
+
+CREATE DATABASE IF NOT EXISTS dw_analitico;
+
+CREATE TABLE IF NOT EXISTS dw_analitico.ventas_resumen (
+    fecha_venta Date,
+    categoria String,
+    total_ventas Float64,
+    cantidad_transacciones UInt32
+) ENGINE = MergeTree()
+ORDER BY (fecha_venta, categoria);
