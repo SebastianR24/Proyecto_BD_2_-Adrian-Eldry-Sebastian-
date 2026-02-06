@@ -1,0 +1,49 @@
+version: '3'
+services:
+  cassandra:
+    image: cassandra:3.11.10
+    container_name: cassandra_node
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=ProyectoUNEG
+    mem_limit: 2g
+    volumes:
+      - ./cassandra_data:/var/lib/cassandra
+
+  clickhouse:
+    image: yandex/clickhouse-server
+    container_name: clickhouse_server
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - ./clickhouse_data:/var/lib/clickhouse
+      # Opcional: para persistir logs
+      - ./clickhouse_logs:/var/log/clickhouse-server
+
+  jupyter-spark:
+    image: jupyter/pyspark-notebook
+    container_name: jupyter_spark
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    volumes:
+      - ./scripts:/home/jovyan/work
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    depends_on:
+      - cassandra
+      - clickhouse
+  tabix:
+      image: spoonest/clickhouse-tabix-web-client
+      ports:
+        - "8080:80"
+      depends_on:
+        - clickhouse
+        
+
